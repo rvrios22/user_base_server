@@ -49,4 +49,46 @@ router.post('/', async (req, res) => {
     }
 })
 
+router.delete('/:id', async (req, res) => {
+    try {
+        const user = await User.findOne({
+            where: {
+                id: req.params.id
+            }
+        })
+        if (!user) {
+            res.send('user does not exist')
+        } else {
+            await user.destroy();
+            res.status(203).json({ message: 'user deleted ' })
+        }
+    }
+    catch (err) {
+        res.send(err)
+    }
+})
+
+router.put('/:id', async (req, res) => {
+    const { firstName, lastName, email, password } = req.body
+    try {
+        const user = await User.findOne({
+            where: {
+                id: req.params.id
+            }
+        })
+
+        user.update({
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            password: password,
+        })
+        res.send(user)
+    }
+    catch(err) {
+
+    }
+})
+
+
 module.exports = router
