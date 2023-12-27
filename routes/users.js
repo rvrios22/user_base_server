@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { User } = require('../models')
+const bcrypt = require('bcrypt')
 
 router.get('/', async (req, res) => {
     const users = await User.findAll()
@@ -32,12 +33,13 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
     const { firstName, lastName, email, password } = req.body
+    const hash = await bcrypt.hash(password, 12)
 
     const newUser = User.build({
         'firstName': firstName,
         'lastName': lastName,
         'email': email,
-        'password': password
+        'password': hash
     })
 
     try {
@@ -85,7 +87,7 @@ router.put('/:id', async (req, res) => {
         })
         res.send(user)
     }
-    catch(err) {
+    catch (err) {
 
     }
 })
