@@ -1,11 +1,26 @@
 const express = require('express')
 const router = express.Router()
 const { User } = require('../models')
-const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const verifyToken = require('../verify')
 
 router.get('/', async (req, res) => {
-    const users = await User.findAll()
+    const auth = req.headers.authorization
+    if (!auth) {
+        res.status(401).json({ success: false, message: 'unauthorized access' })
+        return
+    }
+    const token = auth.split(' ')[1]
+    jwt.verify(token, process.env.SECRET_TOKEN, (err, decode) => {
+        if(err) {
+            res.status(401).json({ success: false, message: 'unauthorized access' })
+            return
+        } else {
+            
+        }
+    })
     try {
+        const users = await User.findAll()
         res.status(200).json(users)
     }
     catch (err) {
@@ -31,25 +46,7 @@ router.get('/:id', async (req, res) => {
     }
 })
 
-router.post('/', async (req, res) => {
-    const { firstName, lastName, email, password } = req.body
-    const hash = await bcrypt.hash(password, 12)
 
-    const newUser = User.build({
-        'firstName': firstName,
-        'lastName': lastName,
-        'email': email,
-        'password': hash
-    })
-
-    try {
-        await newUser.save()
-        res.status(201).json(newUser)
-    }
-    catch (err) {
-        res.status(503).json(err)
-    }
-})
 
 router.delete('/:id', async (req, res) => {
     try {
