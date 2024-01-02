@@ -11,21 +11,21 @@ router.get('/', async (req, res) => {
         return
     }
     const token = auth.split(' ')[1]
-    jwt.verify(token, process.env.SECRET_TOKEN, (err, decode) => {
-        if(err) {
-            res.status(401).json({ success: false, message: 'unauthorized access' })
-            return
-        } else {
-            
-        }
-    })
     try {
+        jwt.verify(token, process.env.SECRET_TOKEN)
         const users = await User.findAll()
         res.status(200).json(users)
     }
     catch (err) {
-        res.send(err)
+        res.status(401).json({ success: false, message: "Oops, something went wrong" })
+        return
     }
+    // try {
+
+    // }
+    // catch (err) {
+    //     res.send(err)
+    // }
 })
 
 router.get('/:id', async (req, res) => {
