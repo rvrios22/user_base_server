@@ -22,7 +22,7 @@ router.post('/login', async (req, res) => {
         res.send('incorrect password')
         return
     }
-    const token = jwt.sign({ id: user.id, email: user.email }, process.env.SECRET_TOKEN, { expiresIn: '1h' })
+    const token = jwt.sign({ id: user.id, email: user.email, admin: user.admin }, process.env.SECRET_TOKEN, { expiresIn: '1h' })
 
     res.status(200).json({
         sucess: true,
@@ -55,6 +55,8 @@ router.post('/signup', async (req, res) => {
         if (existingEmail) {
             res.send('email already exists')
             return
+        } else if(!req.body) {
+            res.send('all inputs must be filled')
         }
         await newUser.save()
         res.status(201).json(newUser)
