@@ -7,6 +7,10 @@ const dotenv = require('dotenv')
 
 dotenv.config()
 
+router.get('/', (req, res) => {
+    res.status(200).json({ success: true, message: 'Hello World' })
+})
+
 router.post('/login', async (req, res) => {
     const user = await User.findOne({
         where: {
@@ -55,7 +59,7 @@ router.post('/signup', async (req, res) => {
         if (existingEmail) {
             res.send('email already exists')
             return
-        } else if(!req.body) {
+        } else if (!req.body) {
             res.send('all inputs must be filled')
         }
         await newUser.save()

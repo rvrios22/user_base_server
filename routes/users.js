@@ -12,12 +12,12 @@ router.get('/', async (req, res) => {
         return
     }
     const token = auth.split(' ')[1]
-    const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
-    if (!decodedToken.admin) {
-        res.status(403).json({ success: false, message: "You do not have access" })
-        return
-    }
     try {
+        const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
+        if (!decodedToken.admin) {
+            res.status(403).json({ success: false, message: "You do not have access" })
+            return
+        }
         const users = await User.findAll()
         res.status(200).json(users)
     }
@@ -30,15 +30,17 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     const auth = req.headers.authorization
     if (!auth) {
-        res.status(401).json({ success: false, message: "Unauthorized access" })
-    }
-    const token = auth.split(' ')[1]
-    const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
-    if (!decodedToken.admin) {
-        res.status(403).json({ success: false, message: "You do not have access" })
+        res.status(403).json({ success: false, message: "Unauthorized access" })
         return
     }
+    const token = auth.split(' ')[1]
     try {
+        const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
+        console.log('here')
+        if (!decodedToken.admin) {
+            res.status(403).json({ success: false, message: "You do not have access" })
+            return
+        }
         const user = await User.findOne({
             where: {
                 id: req.params.id
@@ -51,7 +53,8 @@ router.get('/:id', async (req, res) => {
         }
     }
     catch (err) {
-        res.status(503).json(err)
+        res.status(401).json({ success: false, message: "Oops, something went wrong" })
+        return
     }
 })
 
@@ -63,12 +66,12 @@ router.delete('/:id', async (req, res) => {
         return
     }
     const token = auth.split(' ')[1]
-    const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
-    if (!decodedToken.admin) {
-        res.status(403).json({ success: false, message: "You do not have access" })
-        return
-    }
     try {
+        const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
+        if (!decodedToken.admin) {
+            res.status(403).json({ success: false, message: "You do not have access" })
+            return
+        }
         const user = await User.findOne({
             where: {
                 id: req.params.id
@@ -82,7 +85,8 @@ router.delete('/:id', async (req, res) => {
         }
     }
     catch (err) {
-        res.send(err)
+        res.status(500).json({ success: false, message: "Oops, something went wrong"})
+        return
     }
 })
 
@@ -95,7 +99,11 @@ router.put('/:id', async (req, res) => {
     }
     const token = auth.split(' ')[1]
     try {
-        jwt.verify(token, process.env.SECRET_TOKEN)
+        const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
+        if (!decodedToken.admin) {
+            res.status(403).json({ success: false, message: "You do not have access" })
+            return
+        }
         const user = await User.findOne({
             where: {
                 id: req.params.id
