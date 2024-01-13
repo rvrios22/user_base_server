@@ -19,10 +19,10 @@ router.get('/', async (req, res) => {
             return
         }
         const users = await User.findAll()
-        res.status(200).json(users)
+        res.status(200).json({ success: true, users: users })
     }
     catch (err) {
-        res.status(401).json({ success: false, message: "Oops, something went wrong" })
+        res.status(500).json({ success: false, message: "Oops, something went wrong", error: err })
         return
     }
 })
@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     const auth = req.headers.authorization
     if (!auth) {
-        res.status(403).json({ success: false, message: "Unauthorized access" })
+        res.status(401).json({ success: false, message: "Unauthorized access" })
         return
     }
     const token = auth.split(' ')[1]
@@ -47,13 +47,13 @@ router.get('/:id', async (req, res) => {
             }
         })
         if (!user) {
-            res.send('User does not exist')
+            res.status(404).json({ success: false, message: "User does not exist" })
         } else {
-            res.status(200).json(user)
+            res.status(200).json({ success: true, user: user })
         }
     }
     catch (err) {
-        res.status(401).json({ success: false, message: "Oops, something went wrong" })
+        res.status(500).json({ success: false, message: "Oops, something went wrong", error: err })
         return
     }
 })
@@ -62,7 +62,7 @@ router.get('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     const auth = req.headers.authorization
     if (!auth) {
-        res.status(403).json({ success: false, message: 'Unauthorized access' })
+        res.status(401).json({ success: false, message: 'Unauthorized access' })
         return
     }
     const token = auth.split(' ')[1]
@@ -78,14 +78,14 @@ router.delete('/:id', async (req, res) => {
             }
         })
         if (!user) {
-            res.send('user does not exist')
+            res.status(404).json({ success: false, message: "User does not exist" })
         } else {
             await user.destroy();
-            res.status(203).json({ message: 'user deleted ' })
+            res.status(203).json({ success: true, message: 'user deleted ', user: user })
         }
     }
     catch (err) {
-        res.status(500).json({ success: false, message: "Oops, something went wrong"})
+        res.status(500).json({ success: false, message: "Oops, something went wrong", error: err })
         return
     }
 })
@@ -94,7 +94,7 @@ router.put('/:id', async (req, res) => {
     const { firstName, lastName, email, password, admin } = req.body
     const auth = req.headers.authorization
     if (!auth) {
-        res.status(403).json({ success: false, message: 'Unauthorized access' })
+        res.status(401).json({ success: false, message: 'Unauthorized access' })
         return
     }
     const token = auth.split(' ')[1]
@@ -117,10 +117,10 @@ router.put('/:id', async (req, res) => {
             password: password,
             admin: admin
         })
-        res.status(203).json({ success: true, user })
+        res.status(203).json({ success: true, user: user })
     }
     catch (err) {
-        res.status(403).json({ success: false, message: 'Unauthorized access' })
+        res.status(500).json({ success: false, message: 'Oops, something went wrong', error: err })
     }
 })
 

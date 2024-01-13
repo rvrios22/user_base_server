@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
         res.status(200).json({ sucess: true, name: `${user.firstName} ${user.lastName}`, email: user.email, admin: user.admin })
     }
     catch (err) {
-        res.status(403).json({ sucess: false, message: "Oops, something went wrong" })
+        res.status(403).json({ sucess: false, message: "Oops, something went wrong", error: err })
     }
 })
 

@@ -18,12 +18,12 @@ router.post('/login', async (req, res) => {
         }
     })
     if (!user) {
-        res.send('email does not exist')
+        res.status(400).json({ success: false, message: "There is no account with this email" })
         return
     }
     const isValid = await bcrypt.compare(req.body.password, user.password)
     if (!isValid) {
-        res.send('incorrect password')
+        res.status(401).json({ success: false, message: "The password you entered is incorrect" })
         return
     }
     const token = jwt.sign({ id: user.id, email: user.email, admin: user.admin }, process.env.SECRET_TOKEN, { expiresIn: '1h' })
@@ -57,16 +57,16 @@ router.post('/signup', async (req, res) => {
 
     try {
         if (existingEmail) {
-            res.send('email already exists')
+            res.status(400).json({ success: false, message: "An account with this email already exists" })
             return
         } else if (!req.body) {
-            res.send('all inputs must be filled')
+            res.status(400).json({ success: false, message: 'Please fill out all fields' })
         }
         await newUser.save()
-        res.status(201).json(newUser)
+        res.status(201).json({ success: true, user: newUser })
     }
     catch (err) {
-        res.status(503).json(err)
+        res.status(500).json({ success: false, message: 'Oops, somethings went wrong', error: err })
     }
 })
 
